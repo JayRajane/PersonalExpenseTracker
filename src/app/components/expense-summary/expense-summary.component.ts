@@ -1,5 +1,5 @@
 // expense-summary.component.ts
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ExpenseService } from '../../services/expense.service';
 import { Chart, registerables } from 'chart.js';
@@ -11,10 +11,10 @@ import { Chart, registerables } from 'chart.js';
   imports: [CommonModule],
   standalone: true
 })
-export class ExpenseSummaryComponent implements OnInit {
-  @ViewChild('categoryChart') categoryChartRef!: ElementRef;
+export class ExpenseSummaryComponent implements OnInit, AfterViewInit {
+  @ViewChild('categoryChart') categoryChartRef!: ElementRef<HTMLCanvasElement>;
   totalExpenses = 0;
-  chart: any;
+  chart: Chart | undefined;
 
   constructor(private expenseService: ExpenseService) {
     Chart.register(...registerables);
@@ -24,13 +24,21 @@ export class ExpenseSummaryComponent implements OnInit {
     this.updateSummary();
   }
 
+  ngAfterViewInit(): void {
+    this.createChart(this.expenseService.getExpenses());
+  }
+
   updateSummary(): void {
     const expenses = this.expenseService.getExpenses();
     this.totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-    this.createChart(expenses);
   }
 
   createChart(expenses: any[]): void {
+    if (!this.categoryChartRef?.nativeElement) {
+      console.error('Canvas element is not available');
+      return;
+    }
+
     const categories = this.expenseService.getCategories();
     const categoryTotals: { [key: string]: number } = {};
 
@@ -50,6 +58,11 @@ export class ExpenseSummaryComponent implements OnInit {
     }
 
     const ctx = this.categoryChartRef.nativeElement.getContext('2d');
+    if (!ctx) {
+      console.error('Failed to get 2D context for canvas');
+      return;
+    }
+
     this.chart = new Chart(ctx, {
       type: 'pie',
       data: {
@@ -76,7 +89,7 @@ export class ExpenseSummaryComponent implements OnInit {
             callbacks: {
               label: (context) => {
                 const label = context.label || '';
-                const value = Number(context.raw) || 0; // Convert to number
+                const value = Number(context.raw) || 0;
                 const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
                 const percentage = Math.round((value / total) * 100);
                 return `${label}: ${value} (${percentage}%)`;
