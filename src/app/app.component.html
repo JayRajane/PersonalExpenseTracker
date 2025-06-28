@@ -1,0 +1,14 @@
+<div class="container mt-3">
+  <app-header></app-header>
+  
+  <div class="row">
+    <div class="col-md-4">
+      <app-expense-form (expenseAdded)="onExpenseAdded()"></app-expense-form>
+    </div>
+    
+    <div class="col-md-8">
+      <app-expense-summary></app-expense-summary>
+      <app-expense-list></app-expense-list>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,59 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title">Your Expenses</h5>
+
+    <div class="row mb-3">
+      <div class="col-md-4">
+        <label for="categoryFilter" class="form-label">Filter by Category</label>
+        <select id="categoryFilter" class="form-select" [(ngModel)]="selectedCategory" (ngModelChange)="applyFilters()">
+          <option value="">All Categories</option>
+          <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="searchText" class="form-label">Search</label>
+        <input type="text" id="searchText" class="form-control" placeholder="Search descriptions..." 
+               [(ngModel)]="searchText" (ngModelChange)="applyFilters()">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th (click)="toggleSort('date')">
+              Date 
+              <span *ngIf="sortField === 'date'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th>Description</th>
+            <th (click)="toggleSort('category')">
+              Category 
+              <span *ngIf="sortField === 'category'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th (click)="toggleSort('amount')">
+              Amount 
+              <span *ngIf="sortField === 'amount'">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let expense of filteredExpenses">
+            <td>{{ expense.date | date }}</td>
+            <td>{{ expense.description }}</td>
+            <td>{{ expense.category }}</td>
+            <td>{{ expense.amount | currency }}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" (click)="onEdit(expense)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="onDelete(expense.id)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="filteredExpenses.length === 0">
+            <td colspan="5" class="text-center">No expenses found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
