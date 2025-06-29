@@ -43,7 +43,7 @@
             <td>{{ expense.date | date }}</td>
             <td>{{ expense.description }}</td>
             <td>{{ expense.category }}</td>
-            <td>{{ expense.amount | currency }}</td>
+            <td>{{ expense.amount | currency: 'INR':'symbol':'1.2-2' }}</td>
             <td>
               <button class="btn btn-sm btn-primary me-2" (click)="onEdit(expense)">Edit</button>
               <button class="btn btn-sm btn-danger" (click)="onDelete(expense.id)">Delete</button>
